@@ -4,6 +4,7 @@ import { SignUpDto } from './dto/sign-up-auth.dto';
 import { SignInDto } from './dto/sign-in-auth.dto';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
+import { generateToken } from './utils/token.utils';
 
 @Injectable()
 export class AuthService {
@@ -12,20 +13,10 @@ export class AuthService {
     private readonly userService: UserService,
   ) {}
 
-  async signUp(signUpDto: SignUpDto): Promise<{ accessToken: string }> {
+  async signUp(signUpDto: SignUpDto) {
     const user = await this.userService.create(signUpDto);
 
-    const payload = {
-      sub: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      isActive: user.isActive,
-    };
-
-    const accessToken = await this.jwtService.signAsync(payload);
-
-    return { accessToken };
+    return generateToken(user, this.jwtService);
   }
 
   async signIn(signInDto: SignInDto) {
@@ -45,19 +36,7 @@ export class AuthService {
     if (!PassworMatch) {
       throw new BadRequestException('Invalid credentials');
     }
-    // prepare some user data to be included in the JWT token
-    // create a payload with user information
-    // this payload will be used to generate the JWT token
-    const payload = {
-      sub: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      isActive: user.isActive,
-    };
-
-    const accessToken = await this.jwtService.signAsync(payload);
-
-    return { accessToken };
+   
+    return generateToken(user, this.jwtService);
   }
 }
