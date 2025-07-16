@@ -25,6 +25,14 @@ export class UserService {
     // save user to the database
     return this.userRepository.save(user);
   }
+  async findByEmail(email: string) {
+    const user = await this.userRepository.findOne({ 
+      where: { 
+        email 
+      } 
+    });
+    return user;
+  }
 
   findAll() {
     return `This action returns all user`;
